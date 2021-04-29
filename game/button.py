@@ -20,6 +20,7 @@ class Button():
 
     def prep_msg(self,msg):
         #front.render将msg文本文件渲染为图像
+
         #.render（内容="xxx"，是否抗锯齿，字体颜色，字体背景颜色）
         self.msg_image=self.front.render(msg, True, self.text_color, self.button_color)
         self.msg_image_rect=self.msg_image.get_rect()

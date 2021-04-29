@@ -7,7 +7,9 @@ from aline import Aline
 from random import randint
 from game_data import Game_data
 from button import Button
-def run_game():
+from score_board import Scoreboard
+
+def run_game():  #实验机记录
     pygame.init()
     pm=Setting()  #参数实例  设置的屏幕参数导进来
     screen=pygame.display.set_mode((pm.screen_width,pm.screen_height)) #整个游戏窗口 也是一个surface
@@ -20,14 +22,15 @@ def run_game():
     bullets=Group()#创建一个存储子弹的编组  管理所有的子弹
     alines=Group()
     data=Game_data(pm)
+    sb=Scoreboard(pm,screen,data)
     gf.creat_fleet(pm, screen, ship, alines) #创建外星人群
 
     while True:
-        gf.check_events(ship,screen,bullets,data, play_button,pm,alines)
+        gf.check_events(ship,screen,bullets,data, play_button,pm,alines,sb)
         # ship.update()
         # bullets.update()
 
-        gf.update_screen(pm, screen, data, ship, bullets, alines, play_button)
+        gf.update_screen(pm, screen, data, ship, bullets, alines, play_button,sb)
 
         if data.game_active:
 
@@ -39,7 +42,7 @@ def run_game():
                 bullets.update()
 
                 # gf.delete(bullets)
-                gf.update_bullets(pm,screen,ship,alines,bullets)
+                gf.update_bullets(pm,screen,ship,alines,bullets,data,sb)
                 gf.update_alines(pm,data,ship,screen,alines,bullets)
                # gf.update_screen(pm, screen,data, ship, bullets, alines,play_button)
         # else:

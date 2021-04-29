@@ -6,6 +6,7 @@ class Game_data():
         self.pm=pm
         self.reset_data()
         self.game_active=False
+        self.score=0
 
     def reset_data(self):
         self.ships_left=self.pm.ship_limit

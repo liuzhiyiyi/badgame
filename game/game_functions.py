@@ -6,9 +6,10 @@ from time import sleep
 
 
 
-def update_screen(duixiang,screen,data,ship,bullets,alines,play_button):
+def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb):
     screen.fill(duixiang.bg_color)  #颜色
     ship.blitme()  # 传送图像  船图以及获取的位置
+    sb.show_score()
     #ship.blitme() 传一个
     alines.draw(screen)  #传一编组 draw  自动绘制编组alines里面的每一个元素 到 screen
     if data.game_active == True:
@@ -20,32 +21,41 @@ def update_screen(duixiang,screen,data,ship,bullets,alines,play_button):
         play_button.draw_button()
     pygame.display.flip()   #更新整个待显示的Surface对象到屏幕上
 
-def check_events(ship,screen,bullets,data, play_button,pm,alines):  #点击键盘
+def check_events(ship,screen,bullets,data, play_button,pm,alines,sb):  #点击键盘
 
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 sys.exit()
             elif event.type==pygame.KEYDOWN:
-                 check_keydown_enent(event,ship,screen,bullets,pm)
+                 check_keydown_enent(event,ship,screen,bullets,data,alines,pm,sb)
             elif event.type==pygame.KEYUP:
                  check_keyup_enent(event, ship)
             elif event.type==pygame.MOUSEBUTTONDOWN :
                 mouse_x,mouse_y=pygame.mouse.get_pos()  #get_pos()  返回 x,y
-                check_play_button(data, play_button, mouse_x, mouse_y,pm,screen,ship,alines,bullets)
+                check_play_button(data, play_button, mouse_x, mouse_y,pm,screen,ship,alines,bullets,sb)
 
-def check_play_button(data, play_button, mouse_x, mouse_y,pm,screen,ship,alines,bullets):
+def check_play_button(data, play_button, mouse_x, mouse_y,pm,screen,ship,alines,bullets,sb):
     if play_button.rect.collidepoint(mouse_x, mouse_y) and  data.game_active==False: #如果按钮的区域与鼠标点击的点冲突（重合）的话就：
-        pygame.mouse.set_visible(False)  #隐藏鼠标
+          new_play(pm, data, sb, alines, bullets, ship)
+
+
+
+def new_play(pm,data,sb,alines,bullets,ship):
+        pm.initialize_dynamic_setting()  # 重置速度
+        data.score = 0
+        sb.prep_score()# 先准备者，后面图像会更新
+       # sb.show_score()
+        pygame.mouse.set_visible(False)  # 隐藏鼠标
         data.reset_data()
-        data.game_active=True
-        #重置游戏
+        data.game_active = True
+        # 重置游戏
         alines.empty()
         bullets.empty()
 
-       # creat_fleet(pm,screen,ship,alines)
+        # creat_fleet(pm,screen,ship,alines)
         ship.center_ship()
 
-def check_keydown_enent(event,ship,screen,bullets,ai_settings):
+def check_keydown_enent(event,ship,screen,bullets,data,alines,pm,sb):
     if event.key == pygame.K_RIGHT or event.key ==pygame.K_d:
         ship.moving_right = True
         # ship.rect.centerx+=10
@@ -62,14 +72,20 @@ def check_keydown_enent(event,ship,screen,bullets,ai_settings):
     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
         ship.moving_down= True
         # ship.rect.centerx-=10
+    if  event.key == pygame.K_ESCAPE:
+        sys.exit()
 
 
 
     if event.key ==pygame.K_SPACE: #空格
-      if len(bullets)<ai_settings.bullet_allowed:#限制子弹数量
-        new_bullet=Bullet(ai_settings,screen,ship)  #创建子弹，
+      if len(bullets)<pm.bullet_allowed:#限制子弹数量
+        new_bullet=Bullet(pm,screen,ship)  #创建子弹，
         bullets.add(new_bullet)  #把子弹加入编组bullets
         #print(" 造出子弹了")
+      if data.game_active == False:
+
+          new_play(pm, data, sb, alines, bullets, ship)
+
 
 def check_keyup_enent(event,ship):
     if event.key == pygame.K_RIGHT or event.key ==pygame.K_d:
@@ -170,13 +186,24 @@ def update_alines(pm,data,ship,screen,alines,bullets):
 
 
 
-def check_bullet_alien_collisions(pm,screen,ship,alines,bullets):   #返回字典，并且添加重叠的键值对
-    collisions=pygame.sprite.groupcollide(bullets,alines,False,True)  #判断 精灵组 和 精灵组 的碰撞
+def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返回字典，并且添加重叠的键值对
+    collisions=pygame.sprite.groupcollide(bullets,alines,True,True)  #判断 精灵组 和 精灵组 的碰撞
     if len(alines)==0:
+        print("len(alines)=",len(alines))
         bullets.empty()  #清空子弹
+        pm.increase_speed()# 提升游戏难度
         creat_fleet(pm,screen,ship,alines)
 
-def update_bullets(pm,screen,ship,alines,bullets):   #函数二合一
+    if collisions:
+        for alines in collisions.values():  #看一个子弹对应的列表有几个外星人（alines）
+            data.score+=pm.aline_points*len(alines)
+            sb.prep_score()
+    # if len(alines)==0:
+    #     bullets.empty()  #清空子弹
+    #     pm.increase_speed()# 提升游戏难度
+    #     creat_fleet(pm,screen,ship,alines)
+
+def update_bullets(pm,screen,ship,alines,bullets,data,sb):   #函数二合一
     for ii in bullets.copy():   #让子弹消失
 
             if ii.rect.bottom < 100:
@@ -186,7 +213,7 @@ def update_bullets(pm,screen,ship,alines,bullets):   #函数二合一
                 # ii.rect.y = ii.y
                 bullets.remove(ii)
         # print(len(bullets)) 验证结果
-    check_bullet_alien_collisions(pm, screen, ship, alines, bullets)
+    check_bullet_alien_collisions(pm, screen, ship, alines, bullets,data,sb)
 
 def ship_hit(pm,data,screen,ship,alines,bullets):
    if data.ships_left>1:
@@ -197,11 +224,13 @@ def ship_hit(pm,data,screen,ship,alines,bullets):
         #清空外星人和子弹列表
         alines.empty()
         bullets.empty()
+
         #创建新的外星人，并且把飞船放在屏幕中间
         creat_fleet(pm,screen,ship,alines)
         #ship.center_ship()
 
    else:
+
        pygame.mouse.set_visible(True)
        data.game_active=False
 
