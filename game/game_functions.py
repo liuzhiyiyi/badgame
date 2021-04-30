@@ -10,6 +10,7 @@ def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb):
     screen.fill(duixiang.bg_color)  #颜色
     ship.blitme()  # 传送图像  船图以及获取的位置
     sb.show_score()
+
     #ship.blitme() 传一个
     alines.draw(screen)  #传一编组 draw  自动绘制编组alines里面的每一个元素 到 screen
     if data.game_active == True:
@@ -36,13 +37,20 @@ def check_events(ship,screen,bullets,data, play_button,pm,alines,sb):  #点击�
 
 def check_play_button(data, play_button, mouse_x, mouse_y,pm,screen,ship,alines,bullets,sb):
     if play_button.rect.collidepoint(mouse_x, mouse_y) and  data.game_active==False: #如果按钮的区域与鼠标点击的点冲突（重合）的话就：
+         # print("data.score=", data.score, "data.high_score=", data.high_score)
+          #check_high_score(data,sb)
+          #sb.show_score()
           new_play(pm, data, sb, alines, bullets, ship)
+
+
 
 
 
 def new_play(pm,data,sb,alines,bullets,ship):
         pm.initialize_dynamic_setting()  # 重置速度
         data.score = 0
+        pm.score_scale=2
+        pm.aline_points=5
         sb.prep_score()# 先准备者，后面图像会更新
        # sb.show_score()
         pygame.mouse.set_visible(False)  # 隐藏鼠标
@@ -198,6 +206,9 @@ def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返
         for alines in collisions.values():  #看一个子弹对应的列表有几个外星人（alines）
             data.score+=pm.aline_points*len(alines)
             sb.prep_score()
+        check_high_score(data, sb)
+        #check_high_score(data, sb)
+
     # if len(alines)==0:
     #     bullets.empty()  #清空子弹
     #     pm.increase_speed()# 提升游戏难度
@@ -241,4 +252,11 @@ def check_aliens_bottom(pm,data,screen,ship,alines,bullets):
     for aline in alines.sprites():
         if aline.rect.bottom>=screen_rect.bottom:
             ship_hit(pm,data,screen,ship,alines,bullets)
+
+def check_high_score(data,sb):
+    if data.score>data.high_score:
+        data.high_score=data.score
+        print("data.score=",data.score,"data.high_score=",data.high_score)
+        sb.prep_high_score()   #多方准备，然后聚集一处 show_score   blit
+
 
