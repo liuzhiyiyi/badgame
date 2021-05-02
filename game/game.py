@@ -20,7 +20,7 @@ def run_game():  #实验机记录
     ship=Ship(screen,pm.ship_speed)# 飞船实例
     # bg_color=(122,211,44)  # 范围0-255
     bullets=Group()#创建一个存储子弹的编组  管理所有的子弹
-    alines=Group()
+    alines = Group()
     data=Game_data(pm)
     sb=Scoreboard(pm,screen,data)
     gf.creat_fleet(pm, screen, ship, alines) #创建外星人群

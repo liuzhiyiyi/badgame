@@ -128,10 +128,10 @@ def creat_aline(pm,screen,alines,aline_number,row_number):  #造出一个某位�
 
               aline = Aline(pm, screen)
               aline_width=aline.rect.width
-              aline.xx=aline_width+2*aline_width*aline_number   #区别只有图像的长宽和坐标的位置
+              aline.xx=aline_width+2*aline_width*aline_number # 知识代表位置信息   #区别只有图像的长宽和坐标的位置
               #print("aline.x=",aline.xx)
-              aline.rect.x=aline.xx
-              aline.rect.y=aline.rect.height+2*aline.rect.height*row_number
+              aline.rect.x=aline.xx    #这个才是定点
+              aline.rect.y=aline.rect.height+50+2*aline.rect.height*row_number
 
               #aline.speed=randint(-1,1)    #随机移动
               aline.speed =pm.alien_speed
@@ -194,13 +194,20 @@ def update_alines(pm,data,ship,screen,alines,bullets):
 
 
 
+
+
 def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返回字典，并且添加重叠的键值对
     collisions=pygame.sprite.groupcollide(bullets,alines,True,True)  #判断 精灵组 和 精灵组 的碰撞
     if len(alines)==0:
         print("len(alines)=",len(alines))
         bullets.empty()  #清空子弹
         pm.increase_speed()# 提升游戏难度
+        sb.perp_level()  # 必须把变化的数字变成图片，每次变化都要传到图片那里一次
+        data.up_level()
+
         creat_fleet(pm,screen,ship,alines)
+
+
 
     if collisions:
         for alines in collisions.values():  #看一个子弹对应的列表有几个外星人（alines）

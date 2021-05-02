@@ -1,5 +1,6 @@
 import pygame
 
+
 class Ship():   #绘制一副飞船在屏幕上的画
     def __init__(self,screen,speed):  #screen 表示飞船要绘制在哪
         self.screen=screen  #初始化飞船设置其位置
@@ -39,4 +40,4 @@ class Ship():   #绘制一副飞船在屏幕上的画
        # self.center=self.screen_rect.centerx
         self.rect.centerx = self.screen_rect.centerx
 
-        self.rect.centery = self.screen_rect.bottom
+        self.rect.bottom = self.screen_rect.bottom
