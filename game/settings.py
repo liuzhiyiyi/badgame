@@ -18,6 +18,7 @@ class Setting:
         self.initialize_dynamic_setting()
         self.aline_points=5
         self.score_scale=2
+        self.super_bullet_speed=1
 
     def initialize_dynamic_setting(self):  #check_play_button
         self.ship_speed=5
@@ -30,4 +31,4 @@ class Setting:
         self.bullet_speed*=self.speedup_scale
         self.alien_speed*=self.speedup_scale
         self.aline_points=int(self.aline_points*self.score_scale)
-        print(self.aline_points)
+

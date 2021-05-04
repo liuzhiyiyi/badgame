@@ -1,18 +1,26 @@
-import pygame, sys
+import pygame , sys
 from bullet import Bullet
 from aline import  Aline
-from random import randint
+#from random import randint
 from time import sleep
+#from high_energy_bullet import Highbullet
+#from pygame.sprite import Sprite
 
 
 
-def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb):
+
+
+def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb,change_buller):
     screen.fill(duixiang.bg_color)  #颜色
     ship.blitme()  # 传送图像  船图以及获取的位置
     sb.show_score()
 
     #ship.blitme() 传一个
     alines.draw(screen)  #传一编组 draw  自动绘制编组alines里面的每一个元素 到 screen
+
+    change_buller.blitme()
+    change_buller.change_speed()
+
     if data.game_active == True:
         for bullet in bullets.sprites():
             bullet.draw_bullet()
@@ -46,6 +54,8 @@ def check_play_button(data, play_button, mouse_x, mouse_y,pm,screen,ship,alines,
 
 
 
+
+
 def new_play(pm,data,sb,alines,bullets,ship):
         pm.initialize_dynamic_setting()  # 重置速度
         data.score = 0
@@ -53,12 +63,18 @@ def new_play(pm,data,sb,alines,bullets,ship):
         pm.aline_points=5
         sb.prep_score()# 先准备者，后面图像会更新
        # sb.show_score()
+
         pygame.mouse.set_visible(False)  # 隐藏鼠标
         data.reset_data()
         data.game_active = True
         # 重置游戏
         alines.empty()
         bullets.empty()
+
+        data.ship_limit = 3
+        sb.prep_ships()
+
+        data.level=1
 
         # creat_fleet(pm,screen,ship,alines)
         ship.center_ship()
@@ -128,7 +144,7 @@ def creat_aline(pm,screen,alines,aline_number,row_number):  #造出一个某位�
 
               aline = Aline(pm, screen)
               aline_width=aline.rect.width
-              aline.xx=aline_width+2*aline_width*aline_number # 知识代表位置信息   #区别只有图像的长宽和坐标的位置
+              aline.xx=aline_width+2*aline_width*aline_number #  只是代表位置信息   #区别只有图像的长宽和坐标的位置
               #print("aline.x=",aline.xx)
               aline.rect.x=aline.xx    #这个才是定点
               aline.rect.y=aline.rect.height+50+2*aline.rect.height*row_number
@@ -141,6 +157,10 @@ def creat_aline(pm,screen,alines,aline_number,row_number):  #造出一个某位�
 
               alines.add(aline)
 
+
+
+
+
 def get_number_rows(pm,ship_height,aline_height):
     available_space_y=(pm.screen_height-(3*aline_height)-ship_height)
     number_rows=available_space_y//(2*aline_height)  #而在python3中， ‘整数/整数 = 浮点数’， ‘整数//整数 =  整数’
@@ -148,7 +168,7 @@ def get_number_rows(pm,ship_height,aline_height):
 
 
 
-def creat_fleet(pm,screen,ship,alines):
+def creat_fleet(pm,screen,ship,alines,):
     #创建外星人群
     aline = Aline(pm, screen)
 
@@ -184,13 +204,31 @@ def check_fleet_edges(pm,alines):
 
 
 
-def update_alines(pm,data,ship,screen,alines,bullets):
+def update_alines(pm,data,ship,screen,alines,bullets,sb):
     check_fleet_edges(pm,alines)
     alines.update()
     if pygame.sprite.spritecollideany(ship,alines):   #判断 某个精灵 和 指定精灵组 中的精灵的碰撞
         print("Ship hit")
-        ship_hit(pm,data,screen,ship,alines,bullets)
-    check_aliens_bottom(pm,data,screen,ship,alines,bullets)
+        ship_hit(pm,data,screen,ship,alines,bullets,sb)
+    check_aliens_bottom(pm,data,screen,ship,alines,bullets,sb)
+
+def update_high_buller(change_buller,data):
+
+    change_buller.update()
+    print(change_buller.rect.y)
+    print(change_buller.screen.get_rect().bottom)
+    #if change_buller.rect.y>change_buller.screen.get_rect().bottom:
+
+        #如何删除单个对象？
+
+def check_eat_high_buller(ship,change_buller,pm,data):
+    collisions=pygame.sprite.collide_rect(ship, change_buller)
+    if collisions :
+        pm.bullet_width = 200
+        change_buller.stop()
+
+
+
 
 
 
@@ -199,7 +237,7 @@ def update_alines(pm,data,ship,screen,alines,bullets):
 def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返回字典，并且添加重叠的键值对
     collisions=pygame.sprite.groupcollide(bullets,alines,True,True)  #判断 精灵组 和 精灵组 的碰撞
     if len(alines)==0:
-        print("len(alines)=",len(alines))
+       # print("len(alines)=",len(alines))
         bullets.empty()  #清空子弹
         pm.increase_speed()# 提升游戏难度
         sb.perp_level()  # 必须把变化的数字变成图片，每次变化都要传到图片那里一次
@@ -211,7 +249,7 @@ def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返
 
     if collisions:
         for alines in collisions.values():  #看一个子弹对应的列表有几个外星人（alines）
-            data.score+=pm.aline_points*len(alines)
+            data.score += pm.aline_points*len(alines)
             sb.prep_score()
         check_high_score(data, sb)
         #check_high_score(data, sb)
@@ -221,7 +259,7 @@ def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返
     #     pm.increase_speed()# 提升游戏难度
     #     creat_fleet(pm,screen,ship,alines)
 
-def update_bullets(pm,screen,ship,alines,bullets,data,sb):   #函数二合一
+def update_bullets(pm,screen,ship,alines,bullets,data,sb,change_buller):   #函数二合一
     for ii in bullets.copy():   #让子弹消失
 
             if ii.rect.bottom < 100:
@@ -232,10 +270,12 @@ def update_bullets(pm,screen,ship,alines,bullets,data,sb):   #函数二合一
                 bullets.remove(ii)
         # print(len(bullets)) 验证结果
     check_bullet_alien_collisions(pm, screen, ship, alines, bullets,data,sb)
+    check_eat_high_buller(ship, change_buller, pm,data)
 
-def ship_hit(pm,data,screen,ship,alines,bullets):
+def ship_hit(pm,data,screen,ship,alines,bullets,sb):
    if data.ships_left>1:
         data.ships_left-=1
+        sb.prep_ships()#更新记分牌
         ship.center_ship()
         sleep(0.5)
 
@@ -254,16 +294,16 @@ def ship_hit(pm,data,screen,ship,alines,bullets):
 
 
 
-def check_aliens_bottom(pm,data,screen,ship,alines,bullets):
+def check_aliens_bottom(pm,data,screen,ship,alines,bullets,sb):
     screen_rect=screen.get_rect()
     for aline in alines.sprites():
         if aline.rect.bottom>=screen_rect.bottom:
-            ship_hit(pm,data,screen,ship,alines,bullets)
+            ship_hit(pm,data,screen,ship,alines,bullets,sb)
 
 def check_high_score(data,sb):
     if data.score>data.high_score:
         data.high_score=data.score
-        print("data.score=",data.score,"data.high_score=",data.high_score)
+        #print("data.score=",data.score,"data.high_score=",data.high_score)
         sb.prep_high_score()   #多方准备，然后聚集一处 show_score   blit
 
 

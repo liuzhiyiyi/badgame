@@ -11,3 +11,4 @@ qq={
 
 resp=requests.get(url,headers=qq)
 print(resp.text)  #看页面源代码
+resp.close()

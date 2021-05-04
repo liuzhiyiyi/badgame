@@ -1,8 +1,10 @@
 import pygame
+from pygame.sprite import Sprite
 
-
-class Ship():   #绘制一副飞船在屏幕上的画
-    def __init__(self,screen,speed):  #screen 表示飞船要绘制在哪
+class Ship(Sprite):   #绘制一副飞船在屏幕上的画
+    def __init__(self,screen,pm):  #screen 表示飞船要绘制在哪
+        super(Ship,self).__init__()
+        self.pm=pm
         self.screen=screen  #初始化飞船设置其位置
        # print("Ship.screen=",self.screen)
         self.image=pygame.image.load('huiji.bmp')  #返回表示飞船的surface（是屏幕的一部分）  抓图像
@@ -19,7 +21,7 @@ class Ship():   #绘制一副飞船在屏幕上的画
         self.moving_left=False
         self.moving_up=False
         self.moving_down=False
-        self.speed=speed
+        self.speed=self.pm.ship_speed
     def blitme(self):
         self.screen.blit(self.image,self.rect)  #blit 块传送   把这个图像传到 self.rect制定的位置
 
@@ -41,3 +43,5 @@ class Ship():   #绘制一副飞船在屏幕上的画
         self.rect.centerx = self.screen_rect.centerx
 
         self.rect.bottom = self.screen_rect.bottom
+
+

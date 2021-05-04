@@ -1,4 +1,6 @@
 import pygame.font
+from pygame.sprite import  Group
+from ship import Ship
 
 class Scoreboard():
     def __init__(self,pm,screen,data):
@@ -13,6 +15,7 @@ class Scoreboard():
         self.prep_score()
         self.prep_high_score()
         self.perp_level()
+        self.prep_ships()
 
 
     def prep_score(self):
@@ -38,6 +41,12 @@ class Scoreboard():
 
         now_core=Txt("当前分数：", self.score_rect.top ,self.score_rect.bottom,self.level_rect.left-100,self.level_rect.right-100)
         self.screen.blit(now_core.image, now_core.rect)
+
+        left = Txt(" 剩余生命：", self.screen_rect.top, self.score_rect.bottom+20, self.screen_rect.left,
+                       self.screen_rect.left+150)
+        self.screen.blit(left.image, left.rect)
+
+        self.ships.draw(self.screen)#?
         #做出blit这个动作的人是一个Surface类的实例,这个人即将在自己身上画图,他需要两个参数:要画的图片,和画的位置,即source和dest.
 
 
@@ -58,7 +67,7 @@ class Scoreboard():
 
         #self.txt_image = self.font.render(aaa, True, self.text_color, self.pm.bg_color)
         self.txt_rect = self.txt_image.get_rect()
-        self.txt_rect.centerx = self.screen_rect.centerx-86
+        self.txt_rect.centerx = self.screen_rect.centerx-100
         self.txt_rect.top = self.score_rect.top
 
 
@@ -75,6 +84,14 @@ class Scoreboard():
         self.level_rect.top=self.score_rect.bottom
         self.level_rect.centerx = self.screen_rect.right-20
 
+    def prep_ships(self):
+        self.ships = Group()
+        for ship_number in range((self.data.ships_left)-1):
+            ship = Ship(self.screen, self.pm)
+            ship.rect.x = 140 + ship_number * ship.rect.width
+            ship.rect.y = 10
+            self.ships.add(ship)
+
 
 class Txt():
     def __init__(self,str,top,bottom,lift,right,):
@@ -87,4 +104,7 @@ class Txt():
         self.rect.bottom=bottom
         self.rect.left=lift
         self.rect.right=right
+
+
+
 
