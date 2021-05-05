@@ -3,18 +3,21 @@ from bullet import Bullet
 from aline import  Aline
 #from random import randint
 from time import sleep
-#from high_energy_bullet import Highbullet
+from high_energy_bullet import Highbullet
 #from pygame.sprite import Sprite
+import random
+from threading import Timer
+import _thread
 
 
 
 
 
-def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb,change_buller):
+def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb,change_buller,super_bullers):
     screen.fill(duixiang.bg_color)  #颜色
     ship.blitme()  # 传送图像  船图以及获取的位置
     sb.show_score()
-
+    super_bullers.draw(screen)
     #ship.blitme() 传一个
     alines.draw(screen)  #传一编组 draw  自动绘制编组alines里面的每一个元素 到 screen
 
@@ -157,6 +160,25 @@ def creat_aline(pm,screen,alines,aline_number,row_number):  #造出一个某位�
 
               alines.add(aline)
 
+def creat_superbullers(pm, screen,super_bullers):
+    xx=100
+    while xx<3001:
+        bullet = Highbullet(pm, screen)
+        bullet.rect.x=bullet.screen.get_rect().left+random.randint(1,1100)
+        bullet.yy=bullet.screen.get_rect().top-xx
+        bullet.rect.y=bullet.screen.get_rect().top-xx
+        super_bullers.add(bullet)
+
+        xx=xx+1000
+
+# def creat_three_superbullers(pm, screen,super_bullers):
+#
+#
+#         for xx in range(5):
+#              creat_superbullers(pm, screen, super_bullers, xx+100)
+
+
+
 
 
 
@@ -215,8 +237,8 @@ def update_alines(pm,data,ship,screen,alines,bullets,sb):
 def update_high_buller(change_buller,data):
 
     change_buller.update()
-    print(change_buller.rect.y)
-    print(change_buller.screen.get_rect().bottom)
+    # print(change_buller.rect.y)
+    # print(change_buller.screen.get_rect().bottom)
     #if change_buller.rect.y>change_buller.screen.get_rect().bottom:
 
         #如何删除单个对象？
@@ -226,6 +248,19 @@ def check_eat_high_buller(ship,change_buller,pm,data):
     if collisions :
         pm.bullet_width = 200
         change_buller.stop()
+        try:
+            _thread.start_new_thread(recover_bullet,(pm,5))
+        except:
+            print("bad")
+
+
+def recover_bullet(pm,delay):
+
+
+   sleep(delay)
+   pm.bullet_width = 20
+
+
 
 
 
@@ -244,6 +279,7 @@ def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返
         data.up_level()
 
         creat_fleet(pm,screen,ship,alines)
+
 
 
 

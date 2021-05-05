@@ -11,6 +11,7 @@ from score_board import Scoreboard
 from high_energy_bullet import Highbullet
 
 
+
 def run_game():  #实验机记录
     pygame.init()
     pm=Setting()  #参数实例  设置的屏幕参数导进来
@@ -29,6 +30,11 @@ def run_game():  #实验机记录
     sb=Scoreboard(pm,screen,data)
     gf.creat_fleet(pm, screen, ship, alines) #创建外星人群
 
+    super_bullers=Group()
+
+    gf.creat_superbullers(pm, screen,super_bullers)
+
+
 
 
 
@@ -37,7 +43,7 @@ def run_game():  #实验机记录
         # ship.update()
         # bullets.update()
 
-        gf.update_screen(pm, screen, data, ship, bullets, alines, play_button,sb,change_buller)
+        gf.update_screen(pm, screen, data, ship, bullets, alines, play_button,sb,change_buller,super_bullers)
 
         if data.game_active:
 
@@ -47,6 +53,7 @@ def run_game():  #实验机记录
                 # bullets.update()   #自动对每个精灵(属于bullet)调用bullet.update
                 ship.update()
                 bullets.update()
+                super_bullers.update()
 
                 # gf.delete(bullets)
                 if change_buller.yy < 810 :
