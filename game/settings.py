@@ -19,8 +19,8 @@ class Setting:
         self.aline_points=5
         self.score_scale=2
         #特效子弹补给包的速度
-        self.super_bullet_speed_out=1
-        self.super_bullet_speed_in=10
+        self.super_bullet_speed=1
+
 
     def initialize_dynamic_setting(self):  #check_play_button
         self.ship_speed=5

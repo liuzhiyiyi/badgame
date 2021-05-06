@@ -6,14 +6,14 @@ from time import sleep
 from high_energy_bullet import Highbullet
 #from pygame.sprite import Sprite
 import random
-from threading import Timer
+#from threading import Timer
 import _thread
 
 
 
 
 
-def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb,change_buller,super_bullers):
+def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb,super_bullers):
     screen.fill(duixiang.bg_color)  #颜色
     ship.blitme()  # 传送图像  船图以及获取的位置
     sb.show_score()
@@ -21,8 +21,7 @@ def update_screen(duixiang,screen,data,ship,bullets,alines,play_button,sb,change
     #ship.blitme() 传一个
     alines.draw(screen)  #传一编组 draw  自动绘制编组alines里面的每一个元素 到 screen
 
-    change_buller.blitme()
-    change_buller.change_speed()
+
 
     if data.game_active == True:
         for bullet in bullets.sprites():
@@ -160,16 +159,19 @@ def creat_aline(pm,screen,alines,aline_number,row_number):  #造出一个某位�
 
               alines.add(aline)
 
-def creat_superbullers(pm, screen,super_bullers):
+def creat_superbullers(pm, screen,super_bullers):  #创建超级子弹
     xx=100
-    while xx<3001:
+
+
+    while xx<30001:
         bullet = Highbullet(pm, screen)
         bullet.rect.x=bullet.screen.get_rect().left+random.randint(1,1100)
         bullet.yy=bullet.screen.get_rect().top-xx
         bullet.rect.y=bullet.screen.get_rect().top-xx
         super_bullers.add(bullet)
+        bullet.number=random.randint(1,3) #特效编号
 
-        xx=xx+1000
+        xx=xx+10000
 
 # def creat_three_superbullers(pm, screen,super_bullers):
 #
@@ -243,22 +245,79 @@ def update_high_buller(change_buller,data):
 
         #如何删除单个对象？
 
-def check_eat_high_buller(ship,change_buller,pm,data):
-    collisions=pygame.sprite.collide_rect(ship, change_buller)
-    if collisions :
-        pm.bullet_width = 200
-        change_buller.stop()
+def check_eat_high_buller(ship,pm,data,super_bullers,bullets, alines):
+    #collisions=pygame.sprite.collide_rect(ship, change_buller)
+    collisions2 = pygame.sprite.spritecollideany(ship,super_bullers)  #collisions2就是精灵组中碰撞的单位
+   # collisions3=  pygame.sprite.spritecollide(ship,super_bullers,False)
+
+
+    #没有碰撞的时候精灵组相当于一个列表
+    # print(super_bullers)
+    # if collisions :
+    #     pm.bullet_width = 200
+    #     change_buller.stop()
+    #     # die_1(change_buller)
+    #
+    #
+    #     try:
+    #         _thread.start_new_thread(recover_bullet,(pm,5))
+    #     except:
+    #         print("bad")
+    if collisions2:
+        print(collisions2.rect.x)
+        if collisions2.number==1:
+            pygame.sprite.groupcollide(bullets, alines, False, True)
+            collisions2.kill()
+            pm.bullet_width = 200
+
+        if collisions2.number==2:
+            pygame.sprite.groupcollide(bullets, alines, False, True)
+            collisions2.kill()
+            pm.bullet_width = 2000
+
+        if collisions2.number==3:
+            pygame.sprite.groupcollide(bullets, alines, False, True)
+            collisions2.kill()
+            pm.bullet_height=1000
+
         try:
             _thread.start_new_thread(recover_bullet,(pm,5))
         except:
             print("bad")
 
+    # if not collisions2:
+    #
+    #        _thread.start_new_thread(die,(super_bullers,))  # 休息5秒作一些事情
 
 def recover_bullet(pm,delay):
 
 
    sleep(delay)
    pm.bullet_width = 20
+   pm.bullet_height=15
+
+# def die(group):
+#
+#  for enemy in group:
+#             if enemy.rect.y> 700:
+#                 group.remove(enemy)
+#
+# def die_1(sp):
+#     if sp.rect.y>700:
+#         del sp
+
+
+
+
+# def die(group):
+#     for enemy in group:
+#         if enemy.rect.y> 700:
+#             group.remove(enemy)
+
+
+
+
+
 
 
 
@@ -271,6 +330,7 @@ def recover_bullet(pm,delay):
 
 def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返回字典，并且添加重叠的键值对
     collisions=pygame.sprite.groupcollide(bullets,alines,True,True)  #判断 精灵组 和 精灵组 的碰撞
+
     if len(alines)==0:
        # print("len(alines)=",len(alines))
         bullets.empty()  #清空子弹
@@ -295,7 +355,7 @@ def check_bullet_alien_collisions(pm,screen,ship,alines,bullets,data,sb):   #返
     #     pm.increase_speed()# 提升游戏难度
     #     creat_fleet(pm,screen,ship,alines)
 
-def update_bullets(pm,screen,ship,alines,bullets,data,sb,change_buller):   #函数二合一
+def update_bullets(pm,screen,ship,alines,bullets,data,sb,super_bullers):   #函数二合一
     for ii in bullets.copy():   #让子弹消失
 
             if ii.rect.bottom < 100:
@@ -306,7 +366,22 @@ def update_bullets(pm,screen,ship,alines,bullets,data,sb,change_buller):   #函�
                 bullets.remove(ii)
         # print(len(bullets)) 验证结果
     check_bullet_alien_collisions(pm, screen, ship, alines, bullets,data,sb)
-    check_eat_high_buller(ship, change_buller, pm,data)
+
+
+    check_eat_high_buller(ship, pm,data,super_bullers,bullets, alines)
+
+def update_superbullet(super_bullers,pm):
+    for ii in super_bullers.copy():
+        if ii.rect.y>700:
+            super_bullers.remove(ii)
+
+        if ii.rect.x>0:
+            ii.speed=5
+
+
+
+
+
 
 def ship_hit(pm,data,screen,ship,alines,bullets,sb):
    if data.ships_left>1:

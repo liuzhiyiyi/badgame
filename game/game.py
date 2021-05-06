@@ -25,7 +25,7 @@ def run_game():  #实验机记录
     bullets=Group()#创建一个存储子弹的编组  管理所有的子弹
     alines = Group()
     print(alines)
-    change_buller = Highbullet(pm, screen)
+
     data=Game_data(pm)
     sb=Scoreboard(pm,screen,data)
     gf.creat_fleet(pm, screen, ship, alines) #创建外星人群
@@ -43,7 +43,7 @@ def run_game():  #实验机记录
         # ship.update()
         # bullets.update()
 
-        gf.update_screen(pm, screen, data, ship, bullets, alines, play_button,sb,change_buller,super_bullers)
+        gf.update_screen(pm, screen, data, ship, bullets, alines, play_button,sb,super_bullers)
 
         if data.game_active:
 
@@ -56,10 +56,10 @@ def run_game():  #实验机记录
                 super_bullers.update()
 
                 # gf.delete(bullets)
-                if change_buller.yy < 810 :
-                    gf.update_high_buller(change_buller,data)
-                gf.update_bullets(pm,screen,ship,alines,bullets,data,sb,change_buller)
+
+                gf.update_bullets(pm,screen,ship,alines,bullets,data,sb,super_bullers)
                 gf.update_alines(pm,data,ship,screen,alines,bullets,sb)
+                gf.update_superbullet(super_bullers, pm)
                # gf.update_screen(pm, screen,data, ship, bullets, alines,play_button)
         # else:
         #    pygame.display.set_caption("Game over")
