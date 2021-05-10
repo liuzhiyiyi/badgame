@@ -9,29 +9,35 @@ from game_data import Game_data
 from button import Button
 from score_board import Scoreboard
 from high_energy_bullet import Highbullet
+from other_obj import Dragon
 
 
 
 def run_game():  #实验机记录
     pygame.init()
-    pm=Setting()  #参数实例  设置的屏幕参数导进来
+    pm=Setting()  #参数实例  设置的各种类型参数导进来
+
     screen=pygame.display.set_mode((pm.screen_width,pm.screen_height)) #整个游戏窗口 也是一个surface
 
+    print(screen.get_rect().width)
     pygame.display.set_caption("Alien Invasion")
+    #造一些实例
     play_button=Button(pm,screen,"Play")
-
     ship=Ship(screen,pm)# 飞船实例
+    dragons=Dragon(pm,screen)
+
+    data = Game_data(pm)
+    sb = Scoreboard(pm, screen, data)
+
     # bg_color=(122,211,44)  # 范围0-255
     bullets=Group()#创建一个存储子弹的编组  管理所有的子弹
     alines = Group()
+    super_bullers = Group()
     print(alines)
 
-    data=Game_data(pm)
-    sb=Scoreboard(pm,screen,data)
+
+
     gf.creat_fleet(pm, screen, ship, alines) #创建外星人群
-
-    super_bullers=Group()
-
     gf.creat_superbullers(pm, screen,super_bullers)
 
 
@@ -61,10 +67,7 @@ def run_game():  #实验机记录
                 gf.update_alines(pm,data,ship,screen,alines,bullets,sb)
                 gf.update_superbullet(super_bullers, pm)
                # gf.update_screen(pm, screen,data, ship, bullets, alines,play_button)
-        # else:
-        #    pygame.display.set_caption("Game over")
 
-           #break
 
 
 

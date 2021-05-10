@@ -27,8 +27,7 @@ class Highbullet(Sprite):
 
 
     def stop(self):
-        self.rect.x=2000
-        self.rect.y=self.yy+800
+        pygame.sprite.Sprite.kill(self)
 
 
 
