@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+   <h1> 添加 学生</h1>
+   <form method="POST" action="/add_student/">  <!--form 里面写提交方式  action后面写url-->
+       <p>学生姓名：<input type="text" name="xname"  /> </p>
+<!-- name让后台指导从哪拿数据  name="tpdata"作为键-->
+       <p>
+           所属班级：
+<!--           name作为键，value作为值。-->
+           <select name="class_id">
+               {%for i in class_list%}
+               <option value="{{i.id}}">{{i.title}}</option>
+               {% endfor %}
+           </select>
+       </p>
+       <input type="submit" value="提交">
+
+   </form>
+</body>
+</html>

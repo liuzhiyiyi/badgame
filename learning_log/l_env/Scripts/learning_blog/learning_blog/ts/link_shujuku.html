@@ -1,0 +1,275 @@
+<!--单表操作-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+<!--    样式-->
+    <style>
+          .hide{
+             display:none;
+
+          }
+          .shadow{
+              position:fixed;
+              left:0;
+              top:0;
+              right:0;
+              bottom:0;
+              background-color:black;
+              opacity:0.4;
+              z-index:999;
+
+          }
+          .modal{
+               z-index:1000;
+               position:fixed;
+               left:50%;
+               top:50%;
+               height:300px;
+               width:400px;
+               background-color:white;
+               margin-left:-200px;
+               margin-top:-150px;
+
+          }
+
+
+    </style>
+
+</head>
+<body>
+
+    <h1>班级列表</h1>
+    <div>
+        <a href="/addclass/">添加</a>
+        <a onclick="showModal();">对话框添加</a>   <!--onclick是一个事件 -->
+        <a onclick="show_delete();" >对话框删除</a>
+    </div>
+    <!--下面是一个表 -->
+     <table>
+         <thead>
+           <tr>
+               <th>ID</th>
+               <th>班级名称</th>
+               <th>操作</th>
+           </tr>
+         </thead>
+         <tbody>
+            {% for row in class_list %}
+              <tr>
+                  <td>{{row.id}}</td>
+                  <td>{{row.title}}</td>
+                  <td><a href="/change/?nid={{row.id}}">编辑</a></td>
+                  |
+                  <td><a href="/del_class/?nid={{row.id}}">删除</a></td>  <!--把需要传回去的参数通过url带回去 -->
+                  |
+                  <td><a onclick="show_edit(this);" >对话框编辑</a></td>
+              </tr>
+            {% endfor %}
+         </tbody>
+     </table>
+
+
+
+
+<!--    遮罩层  shadow hide 默认是隐藏的   shadow就是显现的 -->
+ <div id="shadow" class="shadow hide"></div>
+<!--    对话框-->
+ <div id="modal" class="modal hide">
+     <!--   <form method="POST" action="/modal_add_class/">  为了提交后不刷新 不能用form  -->
+       <p>
+           <input id="title_1"   type="text" name="title"/><span id="editmsg"></span>
+       </p>
+
+           <input type="button" value="提交" onclick="AjaxSend();"/>
+           <input type="button" value="取消" onclick="Ajaxover();"/>
+ </div>
+
+
+
+
+
+<div id="shadow_de" class="shadow hide"></div>
+
+ <div id="modal_de" class="modal hide">
+     <!--   <form method="POST" action="/modal_add_class/">  为了提交后不刷新 不能用form  -->
+       <p>
+<!--           <input id="title_2"   type="text" name="title"/>-->
+              <select id="de_id"  >
+                  {% for row in class_list %}
+
+                      <option selected value="{{row.id}}" >{{row.title}}</option>
+                  {% endfor %}
+
+
+
+              </select>
+       </p>
+           <input type="button" value="确认删除" onclick="deSend();" />
+           <input type="button" value="取消" onclick="deleteover();"/>
+ </div>
+
+
+
+
+
+    <!--    遮罩层  shadow hide 默认是隐藏的   shadow就是显现的 -->
+ <div id="shadow_edit" class="shadow hide"></div>
+<!--    对话框-->
+ <div id="modal_edit" class="modal hide">
+       <h3>编辑框</h3>
+     <!--   <form method="POST" action="/modal_add_class/">  为了提交后不刷新 不能用form  -->
+       <p>
+           <input id="title_id"   type="text" name="id" style="display:none" />
+           <input id="title_txt"   type="text" name="title" />
+
+       </p>
+
+           <input type="button" value="提交" onclick="edit_Send();"/>
+           <input type="button" value="取消" onclick="edit_over();"/>
+ </div>
+
+
+
+
+
+
+
+<!--    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.12.4/jquery.js"></script>-->
+<script src="https://s3.pstatp.com/cdn/expire-1-M/jquery/3.3.1/jquery.min.js"></script>
+<!--    函数-->
+   <script>
+       function  showModal(){
+          document.getElementById('shadow').classList.remove('hide');
+          document.getElementById('modal').classList.remove('hide');
+          }
+       function  Ajaxover(){
+          document.getElementById('shadow').classList.add('hide');
+          document.getElementById('modal').classList.add('hide');
+
+
+       }
+
+
+
+
+
+       function  show_delete()
+       {
+          document.getElementById('shadow_de').classList.remove('hide');
+          document.getElementById('modal_de').classList.remove('hide');
+       }
+
+       function  deleteover(){
+          document.getElementById('shadow_de').classList.add('hide');
+          document.getElementById('modal_de').classList.add('hide');
+       }
+
+
+
+
+       function  show_edit(ths){
+          document.getElementById('shadow_edit').classList.remove('hide');
+          document.getElementById('modal_edit').classList.remove('hide');
+          var row= $(ths).parent().prevAll();
+          console.log(row[2]);
+          var content=$(row[2]).text();
+          $('#title_txt').val(content);
+
+          console.log(row[3]);
+          var content_1=$(row[3]).text();
+          $('#title_id').val(content_1);
+
+
+
+
+
+
+
+          }
+       function  edit_over(){
+          document.getElementById('shadow_edit').classList.add('hide');
+          document.getElementById('modal_edit').classList.add('hide');
+
+
+       }
+
+
+
+
+
+
+        function AjaxSend(){
+
+             $.ajax(
+             {
+                url:'/modal_add_class/',
+                type:'POST',
+                data:{'title':$('#title_1').val()},
+
+                success:function(data){
+                   console.log(data);
+                   if(data=="ok")
+                   {
+                   alert('添加成功')
+                   location.href='/123/';
+                   }
+                   else
+                   {
+                     $('#errormsg').text(data);
+                   }
+                }})}
+
+        function deSend(){
+
+             $.ajax(
+             {
+                url:'/modal_de_class/',
+                type:'POST',
+                data:{'title':$('#de_id').val()},
+
+                success:function(data){
+                   console.log(data);
+                   if(data=="ok")
+                   {
+
+                   location.href='/123/';
+                   }
+                   else
+                   {
+                     $('#errormsg').text(data);
+                   }
+                }})}
+
+        function edit_Send()
+                 {
+             var nid=$('#title_id').val();
+             var content= $('#title_txt').val();
+             $.ajax(
+             {
+                url:'/modal_edit_class/',
+                type:'POST',
+                data:{'nid':nid,'content':content},
+                success:function(data){
+                   console.log(data);
+                   data=JSON.parse(data)
+                   if(data.status)
+                   {
+                    location.reload()
+
+                   }
+                   else
+                   {
+                     alert(data.message)
+                   }
+                }})}
+
+
+
+
+   </script>
+
+
+</body>
+</html>

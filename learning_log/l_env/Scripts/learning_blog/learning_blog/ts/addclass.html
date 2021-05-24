@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+   <h1> 添加班级</h1>
+
+
+   <form method="POST" action="/addclass/">  <!--form 里面写提交方式  action后面写url-->
+       <p>班级名称：<input type="text" name="tpdata"/> </p>
+       <h5>{{错误提示}} </h5><!--name让后台指导从哪拿数据  name="tpdata"作为键-->
+       <input type="submit" value="提交">
+
+
+
+
+   </form>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  <h1> 编辑班级</h1>
+
+
+   <form method="POST" action="/change/" >
+        <!--      <form method="POST" action="/change/?nid={{result.id}}" >   这样的话url不变  但是可以用get请求渠道这个值                  -->
+       <input style="display:none" name="id" value="{{result.id}}"><!--valuer让值在输入框内显示出来-->
+       <p>班级名称：<input type="text" name="ch_data" value="{{result.title}}" /> </p>  <!--name让后台指导从哪拿数据  name="tpdata"作为键-->
+       <input type="submit" value="提交" >
+
+
+   </form>
+</body>
+</html>

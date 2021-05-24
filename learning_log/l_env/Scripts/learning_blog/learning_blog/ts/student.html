@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学生列表</title>
+    <style>
+             .hide{
+             display:none;
+
+          }
+          .shadow{
+              position:fixed;
+              left:0;
+              top:0;
+              right:0;
+              bottom:0;
+              background-color:black;
+              opacity:0.4;
+              z-index:999;
+
+          }
+          .modal{
+               z-index:1000;
+               position:fixed;
+               left:50%;
+               top:50%;
+               height:300px;
+               width:400px;
+               background-color:white;
+
+               margin-left:-200px;
+               margin-top:-150px;
+
+          }
+
+
+    </style>
+
+
+</head>
+<body>
+
+    <h1>学生列表</h1>
+    <div>
+        <a href="/add_student/">添加</a>
+        <a id="add_modal_student">对话框添加</a>
+
+    </div>
+    <!--下面是一个表 -->
+     <table>
+         <thead>
+           <tr>
+               <th>ID</th>
+               <th>学生姓名</th>
+               <th>所属班级</th>
+               <th>class_id</th>
+               <th>操作</th>
+
+           </tr>
+         </thead>
+         <tbody>
+
+           {% for row in student_list %}
+                   <tr>
+                          <td>{{row.id}}</td>
+                          <td>{{row.name}}</td>
+                          <td>{{row.title}}</td>
+                          <td>{{row.class_id}}</td>
+                          <td>
+
+                              <a href="/edit_student/?name={{row.name}}&nid={{row.class_id}}&sid={{row.id}}">编辑</a>
+                                  |
+                              <a>删除</a>
+                              |
+                              <a onclick="edit_modal_student(this);">对话编辑</a>
+
+
+                          </td>
+
+
+
+        <!--                  把需要传回去的参数通过url带回去-->
+                        </tr>
+                    {% endfor %}
+         </tbody>
+     </table>
+
+    <!--    遮罩层  shadow hide 默认是隐藏的   shadow就是显现的 -->
+<div id="shadow_1" class="shadow hide"></div>
+<!--    对话框-->
+<div id="modal_1" class="modal hide">
+     <!--   <form method="POST" action="/modal_add_class/">  为了提交后不刷新 不能用form  -->
+       <p>
+           姓名：<input id="add_name"   type="text" name="name" placeholder="姓名"/>
+       </p>
+
+       <p>
+           班级：
+           <select id="add_classId" name="classID">
+                {% for row in student_list %}
+               <option value="{{row.class_id}}">{{row.title}}</option>
+                {%endfor%}
+           </select>
+       </p>
+
+           <input  type="button" value="添加" onclick="btnAdd();" />
+           <input type="button" value="取消" onclick="Ajaxover();"/>
+           <span id="add_error" style="red"></span>
+ </div>
+
+
+    下拉框可编辑
+    <div style="position:relative;">
+ <span style="margin-left:100px;width:18px;overflow:hidden;">
+  <select style="width:118px;margin-left:-93px" onchange="this.parentNode.nextSibling.value=this.value">
+  {%for row in student_list%}
+
+                <option>{{row.name}}</option>
+
+                {%endfor%}
+ </select></span><input name="box" style="width:100px;position:absolute;left:0px;">
+ </div>
+
+
+
+
+        <!--    遮罩层  shadow hide 默认是隐藏的   shadow就是显现的 -->
+ <div id="shadow_edit" class="shadow hide"></div>
+<!--    对话框-->
+ <div id="modal_edit" class="modal hide">
+       <h3>编辑框</h3>
+     <!--   <form method="POST" action="/modal_add_class/">  为了提交后不刷新 不能用form  -->
+       <p>
+           姓名:<input id="edit_title" type="text"   />
+           <input id="edit_id" type="text" style="display:none"  />
+<!--           因为后面要把这个id传到服务端-->
+
+
+       </p>
+       <p>
+           班级： <select id="edit_classId" >
+               {%for row in student_list%}
+
+                <option value="{{row.class_id}}">{{row.title}}</option>
+
+                {%endfor%}
+       </select>
+
+       </p>
+
+           <input type="button" value="提交" onclick="edit_go_student();"/>
+           <input type="button" value="取消" onclick="edit_over_student();"/>
+ </div>
+
+
+<!--<script src="http://code.jquery.com/jquery-1.12.4.min.js"></script>-->
+
+<script src="https://s3.pstatp.com/cdn/expire-1-M/jquery/3.3.1/jquery.min.js"></script>
+<!--    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>-->
+<script>
+    $(function(){
+                   //页面框架加载完成后自动执行
+          $('#add_modal_student').click(function(){   //找到那个ID名  绑定事件
+
+         // document.getElementById('shadow_1').classList.remove('hide');
+          //document.getElementById('modal_1').classList.remove('hide');
+          $('#shadow_1,#modal_1').removeClass('hide');
+
+           }
+                                        )
+                                        })
+    function  Ajaxover(){
+          document.getElementById('shadow_1').classList.add('hide');
+          document.getElementById('modal_1').classList.add('hide');
+
+
+       }
+    function edit_modal_student(ths){
+          document.getElementById('shadow_edit').classList.remove('hide');
+          document.getElementById('modal_edit').classList.remove('hide');
+          var row=$(ths).parent().prevAll();
+          console.log(row[2]);
+          var content=$(row[2]).text();
+          $('#edit_title').val(content);
+          console.log(row[0]);
+
+          var content_1=$(row[0]).text();
+          $('#edit_classId').val(content_1);
+
+          var content_2=$(row[3]).text();
+          $('#edit_id').val(content_2);
+
+
+
+
+    }
+
+    function edit_go_student(){
+             console.log($('#edit_title').val(),$('#edit_classId').val(),$('#edit_id').val())
+
+           $.ajax({
+                url:'/modal_edit_stu_cla/',
+                type:'POST',
+                data:{'name':$('#edit_title').val(),'classId':$('#edit_classId').val(),'id':$('#edit_id').val()},
+                success:function(data){
+                 console.log(data);
+                   data=JSON.parse(data)
+                   if(data.status)
+                   {
+                    location.reload()
+
+                   }
+                   else
+                   {
+                     alert(data.message)
+                   }
+
+                  }
+
+                 })
+
+
+    }
+
+
+
+
+     function edit_over_student(){
+          document.getElementById('shadow_edit').classList.add('hide');
+          document.getElementById('modal_edit').classList.add('hide');
+
+
+    }
+
+    function btnAdd(){     //链接事件（点击）执行
+           $.ajax({
+                url:'/modal_add_stu_cla/',
+                type:'POST',
+                data:{'name':$('#add_name').val(),'classId':$('#add_classId').val()},
+                success:function(data){
+                 console.log(data);
+                 data=JSON.parse(data)
+                   if(data.status)
+                   {
+                    location.reload();
+
+                   }
+                   else
+                   {
+                    $('#add_error').text(data.message);
+                     //alert(data.message)
+                   }
+                  }
+
+                 })
+
+
+   }
+
+
+
+
+
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>老师和班级</title>
+</head>
+<body>
+   <h1>老师和班级</h1>
+    <div>
+        <a href="/add_teacher_class/">添加</a>
+        <a>对话框添加</a>
+        <a>对话框删除</a>
+    </div>
+    <!--下面是一个表 -->
+     <table  border="1">
+         <thead>
+           <tr>
+               <th>ID</th>
+               <th>名字</th>
+               <th>所属班级d</th>
+           </tr>
+         </thead>
+         <tbody>
+             {% for row in class_list%}
+              <tr>
+
+                  <td>{{row.tid}}</td>
+                  <td>{{row.name}}</td>
+                  <td>
+                      {%for item in row.titles%}
+                      <span style="color:red">{{item}}</span>
+                      {%endfor%}
+                  </td>
+
+<!--                  <td><a href="/change/?nid={{row.id}}">编辑</a></td>-->
+<!--                  |-->
+<!--                  <td><a href="/del_class/?nid={{row.id}}">删除</a></td>  &lt;!&ndash;把需要传回去的参数通过url带回去 &ndash;&gt;-->
+<!--                  |-->
+<!--                  <td><a onclick="show_edit(this);" >对话框编辑</a></td>-->
+
+
+                  {% endfor %}
+              </tr>
+
+         </tbody>
+
+
+
+ </body>
+</html>
