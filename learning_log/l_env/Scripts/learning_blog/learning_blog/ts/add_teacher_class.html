@@ -15,7 +15,7 @@
            所属班级：
 <!--           name作为键，value作为值。-->
              <select name="class_id" multiple size="10">
-               {%for i in class_list%}
+               {% for i in class_list %}
                <option value="{{i.id}}">{{i.title}}</option>
                {% endfor %}
            </select>

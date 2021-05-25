@@ -20,6 +20,7 @@ from django.urls import path
 from django.shortcuts import HttpResponse,render,redirect
 import pymysql
 import  json
+import time
 
 import time
 class SqlHelper():
@@ -50,6 +51,7 @@ class SqlHelper():
     def multiple_modify(self,sql,args):
         #self.cursor.executemany('insert into ba(id,name)'value(%s,%s),[(1,'abv'),(2,'ffff')])
         self.cursor.executemany(sql,args)
+        self.conn.commit()
 
     def add_create(self,sql,args):
         self.cursor.execute(sql,args)
@@ -421,7 +423,7 @@ def teacher_and_class(request):
     class_list1=get_all('''SELECT teacher.id AS tid,teacher.`name`,class.title  FROM teacher
                 LEFT JOIN   teacher2class ON teacher.id=teacher2class.teacher_id
                 LEFT JOIN class ON  teacher2class.class_id=class.id;''',[])
-
+    class_list2= get_all('select * from class', [])
     result={}
     for row in class_list1:
         tid=row['tid']
@@ -432,7 +434,7 @@ def teacher_and_class(request):
 
     #result.values()   #用字典列表方式取出来他的values[作为一个列表]
     #class_list    #mysql group by  直接分组
-    return render(request, 'ts/teacher_and_class.html',{'class_list':result.values()})
+    return render(request, 'ts/teacher_and_class.html',{'class_list':result.values(),'class_list2':class_list2})
     # return HttpResponse(json.dumps(ret))
     # return redirect('/student/')
 
@@ -472,7 +474,61 @@ def add_teacher_class(request):
             obj.close()
             return redirect('/teacher_and_class/')
 
+def edit_teacher_class(request):
+    obj = SqlHelper()
+    obj.connect()
+    #nid = request.GET.get('nid')
+    if request.method == "GET":
+        nid = request.GET.get('nid')
+        #nid=request.GET.get('nid')
+        #print('it is:',request.GET.get('nid'))
+        name=obj.get_one("select name from teacher  where `id`=%s", [nid,])['name']
+        class_list=obj.get_list('select * from class',[])
+        teacher_list = obj.get_list('select class_id from  teacher2class where teacher_id=%s', [nid,])
 
+        #print(teacher_list)
+        t_list=[]
+        for i in teacher_list:
+            t_list.append(i['class_id'])
+        # if 2 in t_list:
+        #      print('2 在里面',t_list)
+        obj.close()
+        return render(request, 'ts/edit_teacher_class.html',{'name':name,'class_list':class_list,'t_list':t_list,'nid':nid})
+    else:
+        #先删除再增加
+        t_name=request.POST.get('xname')
+        class_ids = request.POST.getlist('class_id')
+        nid=request.GET.get('nid')
+        obj.modify('update teacher set name=%s WHERE id=%s', [t_name,nid, ])
+        obj.modify('DELETE FROM teacher2class WHERE teacher_id=%s',[nid,])
+        print(nid)
+        # for i in class_ids:
+        #     obj.add_create('insert into teacher2class(teacher_id,class_id) values(%s,%s)',[nid,i])
+        #data1=[(nid,i) for i in class_ids]  这个也可以替代 data_list
+        data_list=[]
+        for i in class_ids:
+            temp=(nid,i)
+            data_list.append(temp)
+        print(data_list)
+        obj.multiple_modify('insert into teacher2class(teacher_id,class_id) values(%s,%s)',data_list)
+
+        obj.close()
+        return redirect('/teacher_and_class/')
+
+def modal_add_tea_cla(request):
+    name=request.POST.get('name')
+    class_id=request.POST.getlist('classId')
+    print(name,json.loads(class_id))
+   # print(name,class_id)
+    return  HttpResponse(1)
+
+def A_get_sql_data(request):
+    time.sleep(5)
+    obj = SqlHelper()
+    obj.connect()
+    class_list2=obj.get_list('select id,title from class',[])
+    obj.close()
+    return HttpResponse(json.dumps(class_list2))  #dunmps python对象转json字符串  序列化一下
 
 urlpatterns = [
      path('admin/', admin.site.urls),
@@ -493,6 +549,9 @@ urlpatterns = [
      path('modal_add_stu_cla/',modal_add_stu_cla),
      path('modal_edit_stu_cla/',modal_edit_stu_cla),
      path('teacher_and_class/' ,teacher_and_class),
-     path('add_teacher_class/',add_teacher_class)
+     path('add_teacher_class/',add_teacher_class),
+     path('edit_teacher_class/',edit_teacher_class),
+     path('modal_add_tea_cla/',modal_add_tea_cla),
+     path('A_get_sql_data/',A_get_sql_data)
 ]
 

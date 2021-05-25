@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+   <h1> 编辑老师及其所属的班级</h1>
+   <form method="POST" action="/edit_teacher_class/?nid={{nid}}">  <!--form 里面写提交方式  action后面写url-->
+       <p>老师姓名：<input type="text" name="xname" placeholder="老师姓名" value="{{name}}" /> </p>
+<!-- name让后台指导从哪拿数据  name="tpdata"作为键-->
+       <p>
+           所属班级：
+<!--           name作为键，value作为值。-->
+             <select name="class_id" multiple size="10">
+               {% for i in class_list %}
+                  {% if i.id in t_list %}
+                        <option selected value="{{i.id}}">{{i.title}}</option>
+                   {%else%}
+                         <option  value="{{i.id}}">{{i.title}}</option>
+                   {%endif%}
+               {% endfor %}
+           </select>
+
+       </p>
+       <input type="submit" value="提交">
+
+
+   </form>
+
+</body>
+</html>
