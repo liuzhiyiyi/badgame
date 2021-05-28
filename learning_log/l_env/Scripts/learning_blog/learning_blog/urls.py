@@ -21,8 +21,6 @@ from django.shortcuts import HttpResponse,render,redirect
 import pymysql
 import  json
 import time
-
-import time
 class SqlHelper():
 
     # def __init__(self):
@@ -70,7 +68,7 @@ class SqlHelper():
 
 
 
-def login(request):  #用户提交的数据都在request里面放着   至少一个参数
+def loo(request):  #用户提交的数据都在request里面放着   至少一个参数
      #pass
    #  return HttpResponse('hello')  #后面只加字符串
     # return
@@ -161,6 +159,11 @@ def delll(request):
 
 def classes(request):
 
+    tk=request.COOKIES.get('ticket')
+    print(tk)
+    if not tk:
+        return redirect('/login/')
+
 
     # 创建连接
     conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='94188', db='exercise',charset='utf8')
@@ -186,7 +189,8 @@ def classes(request):
     cursor.close()
     # 关闭连接
     conn.close()
-    return render(request, 'ts/link_shujuku.html', {'class_list': class_list})
+    boy='班级管理'
+    return render(request, 'ts/link_shujuku.html', {'class_list': class_list, 'title':boy},)
 
 def add_class(request):
     if request.method=="GET":
@@ -334,7 +338,7 @@ def edit_student(request):
         # # conn.commit()  # 这里不用提交了，是要数据
         # cursor.close()  # 关闭游标
         # conn.close()  # 关闭连接
-        class_list=get_all("select id,title from class")
+        class_list=get_all("select id,title from class",[])
 
         return render(request, 'ts/edit_student.html',{'haha':name,'class_list':class_list,'yes':cid,'sid':sid})
     else:
@@ -344,6 +348,8 @@ def edit_student(request):
         #print("******",id,class_id,name)
         modify("update student set name=%s,class_id=%s where id=%s",[name, class_id, id,])#改一张表  其他的因为主键改变二改变
         return redirect('/student/')
+
+
 #----------模态对话框------------------
 def   modal_add_class(request):
     title=request.POST.get('title')
@@ -517,22 +523,81 @@ def edit_teacher_class(request):
 
 def modal_add_tea_cla(request):
     name=request.POST.get('name')
-    class_id=request.POST.getlist('classId')
-    print(name,json.loads(class_id))
+    class_id=request.POST.getlist('classIds')
+    print(name,class_id)
    # print(name,class_id)
-    return  HttpResponse(1)
+    obj = SqlHelper()
+    obj.connect()
+    if obj.get_one("select id from teacher  where `name`=%s", [name, ]):
+        obj.close()
+        return HttpResponse('名重复，请核实')
+    else:
+        # print(name, class_ids)
+        teacher_id = obj.add_create("insert into teacher(`name`) values(%s)", [name, ])
+        # print(teacher_id)
+        for i in class_id:
+            obj.modify("insert into teacher2class(teacher_id,class_id) value(%s,%s)", [teacher_id, i])
+        obj.close()
+    return  HttpResponse('ok')
 
 def A_get_sql_data(request):
-    time.sleep(5)
+    time.sleep(1)
     obj = SqlHelper()
     obj.connect()
     class_list2=obj.get_list('select id,title from class',[])
     obj.close()
     return HttpResponse(json.dumps(class_list2))  #dunmps python对象转json字符串  序列化一下
 
+def A_add_tea_cla_ob(request):
+    name = request.POST.get('name')
+    class_id_list = request.POST.getlist('classIds')
+    print(name,class_id_list)
+    obj = SqlHelper()
+    obj.connect()
+    if obj.get_one("select id from teacher  where `name`=%s", [name, ]):
+        obj.close()
+        return HttpResponse('名重复，请核实')
+    else:
+        #print(name, class_ids)
+        teacher_id = obj.add_create("insert into teacher(`name`) values(%s)", [name, ])
+        #print(teacher_id)
+        for i in class_id_list:
+            obj.modify("insert into teacher2class(teacher_id,class_id) value(%s,%s)", [teacher_id, i])
+        obj.close()
+    return HttpResponse('ok')
+
+def one_test(request):
+   # return HttpResponse('ok')
+    return render(request,'ts/one_test.html')
+
+def login(request):
+    if request.method=="GET":
+        return render(request,'ts/login.html')
+    else:
+        user=request.POST.get('username')
+        pwd=request.POST.get('password')
+        print(user,pwd)
+        if user=='akagi' and pwd== '521':
+            obj=redirect('/123/')
+            obj.set_cookie('ticket','sdfasdas',max_age=10,)#max_age=10 十秒后cookie失效 里面的path属性指定这个cookie内容在哪个url生效
+            return obj
+        else:
+            return render(request, 'ts/login.html')
+        import datetime
+        #from datetime import timedelta
+        # datetime.timedelta  时间加减用它来操作
+        ct=datetime.datetime.utcnow()   #当前的时间
+        v=datetime.timedelta(seconds=10)
+        s=ct+v    #当前的时间+10秒
+        #obj.set_cookie('ticket','sdfasdas',expires=s,)
+        print(s)
+
+
+
+
 urlpatterns = [
      path('admin/', admin.site.urls),
-     path('qqq/', login), #不同url调用不同的函数  get请求
+     path('qqq/', loo), #不同url调用不同的函数  get请求
      path('aaa/', gab),
      path('del/', delll),
      path('123/', classes),
@@ -542,6 +607,7 @@ urlpatterns = [
      path('student/', student),
      path('add_student/',add_student),
      path('edit_student/',edit_student),
+     path('one_test/', one_test),
     #----------模态对话框------------------
      path('modal_add_class/',modal_add_class),
      path('modal_de_class/',modal_de_class),
@@ -552,6 +618,9 @@ urlpatterns = [
      path('add_teacher_class/',add_teacher_class),
      path('edit_teacher_class/',edit_teacher_class),
      path('modal_add_tea_cla/',modal_add_tea_cla),
-     path('A_get_sql_data/',A_get_sql_data)
+     path('A_get_sql_data/',A_get_sql_data),
+     path('A_add_tea_cla_ob/',A_add_tea_cla_ob),
+     path('login/',login),
+
 ]
 

@@ -1,53 +1,19 @@
-<!--单表操作-->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-<!--    样式-->
-    <style>
-          .hide{
-             display:none;
+{% extends 'ts/one_test.html'  %}
 
-          }
-          .shadow{
-              position:fixed;
-              left:0;
-              top:0;
-              right:0;
-              bottom:0;
-              background-color:black;
-              opacity:0.4;
-              z-index:999;
-
-          }
-          .modal{
-               z-index:1000;
-               position:fixed;
-               left:50%;
-               top:50%;
-               height:300px;
-               width:400px;
-               background-color:white;
-               margin-left:-200px;
-               margin-top:-150px;
-
-          }
-
-
-    </style>
-
-</head>
-<body>
-
-    <h1>班级列表</h1>
-    <div>
+{% block xx %}
+<!--     &#45;&#45;&#45;&#45;-->
+  <ol class="breadcrumb">
+      <li><a href="#">首页</a></li>
+      <li><a href="#">班级管理</a></li>
+      <li class="active">添加班级</li>
+    </ol>
+         <div>
         <a href="/addclass/">添加</a>
         <a onclick="showModal();">对话框添加</a>   <!--onclick是一个事件 -->
         <a onclick="show_delete();" >对话框删除</a>
     </div>
     <!--下面是一个表 -->
-     <table>
+     <table class="table table-hover" >
          <thead>
            <tr>
                <th>ID</th>
@@ -69,17 +35,38 @@
             {% endfor %}
          </tbody>
      </table>
-
-
-
-
+<!--     分页-->
+     <nav aria-label="Page navigation">
+  <ul class="pagination">
+    <li>
+      <a href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    <li><a href="#">1</a></li>
+    <li><a href="#">2</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">4</a></li>
+    <li><a href="#">5</a></li>
+    <li>
+      <a href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+<!--     分页-->
+<!--     &#45;&#45;&#45;&#45;-->
+    </div>
+</div>
+<!--js-->
 <!--    遮罩层  shadow hide 默认是隐藏的   shadow就是显现的 -->
  <div id="shadow" class="shadow hide"></div>
 <!--    对话框-->
- <div id="modal" class="modal hide">
+ <div id="modal" class="modal_1 hide">
      <!--   <form method="POST" action="/modal_add_class/">  为了提交后不刷新 不能用form  -->
        <p>
-           <input id="title_1"   type="text" name="title"/><span id="editmsg"></span>
+           班级名称：<input id="title_1"   type="text" name="title"/><span id="editmsg"></span>
        </p>
 
            <input type="button" value="提交" onclick="AjaxSend();"/>
@@ -92,7 +79,7 @@
 
 <div id="shadow_de" class="shadow hide"></div>
 
- <div id="modal_de" class="modal hide">
+ <div id="modal_de" class="modal_1 hide">
      <!--   <form method="POST" action="/modal_add_class/">  为了提交后不刷新 不能用form  -->
        <p>
 <!--           <input id="title_2"   type="text" name="title"/>-->
@@ -117,7 +104,7 @@
     <!--    遮罩层  shadow hide 默认是隐藏的   shadow就是显现的 -->
  <div id="shadow_edit" class="shadow hide"></div>
 <!--    对话框-->
- <div id="modal_edit" class="modal hide">
+ <div id="modal_edit" class="modal_1 hide">
        <h3>编辑框</h3>
      <!--   <form method="POST" action="/modal_add_class/">  为了提交后不刷新 不能用form  -->
        <p>
@@ -269,7 +256,4 @@
 
 
    </script>
-
-
-</body>
-</html>
+{% endblock  %}
